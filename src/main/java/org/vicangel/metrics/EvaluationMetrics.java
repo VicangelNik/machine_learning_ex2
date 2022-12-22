@@ -13,7 +13,7 @@ public abstract class EvaluationMetrics implements Comparable<EvaluationMetrics>
   protected String[] parsedEvaluationOutput;
   private static final Pattern decimalNumPattern = Pattern.compile("-?\\d+(\\.\\d+)?");
   private String title;
-  private final String classifierOptions;
+  private String classifierOptions;
   private float timeTakenToBuildModel; // 2-decimals seconds
   private float timeTakenToTestModelOnTrainingData; // 2-decimals seconds
   private float timeTakenToPerformCrossValidation; // 2-decimals seconds
@@ -70,12 +70,16 @@ public abstract class EvaluationMetrics implements Comparable<EvaluationMetrics>
       });
   }
 
-  protected void setTitle(String title) {
+  protected void setTitle(final String title) {
     this.title = title;
   }
 
   public String getTitle() {
     return title;
+  }
+
+  protected void setClassifierOptions(String classifierOptions) {
+    this.classifierOptions = classifierOptions;
   }
 
   public String getClassifierOptions() {
@@ -126,7 +130,7 @@ public abstract class EvaluationMetrics implements Comparable<EvaluationMetrics>
 
   @Override
   public String toString() {
-    return ", title='" + title + '\'' +
+    return "title='" + title + '\'' +
            ", classifierOptions='" + classifierOptions + '\'' +
            ", timeTakenToBuildModel=" + timeTakenToBuildModel +
            ", timeTakenToTestModelOnTrainingData=" + timeTakenToTestModelOnTrainingData +

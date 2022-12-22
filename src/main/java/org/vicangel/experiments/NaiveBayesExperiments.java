@@ -11,7 +11,7 @@ import weka.core.Instances;
 /**
  * @author Nikiforos Xylogiannopoulos
  */
-public final class NaiveBayesExperiments extends AlgorithmExperiments{
+public final class NaiveBayesExperiments extends AlgorithmExperiments {
 
   public static void performNaiveBayesExperiments(final Instances instances) throws Exception {
     // -K or -D have no effect as mushroom.arf is a nominal dataset. Also, can not be used together.
@@ -24,5 +24,10 @@ public final class NaiveBayesExperiments extends AlgorithmExperiments{
   @Override
   public void performExperiments() throws Exception {
 
+  }
+
+  @Override
+  public String getDefaultWekaOptionsSet() {
+    return "";
   }
 }

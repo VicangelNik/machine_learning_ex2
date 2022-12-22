@@ -12,12 +12,12 @@ public class MPEvaluationMetrics extends EvaluationMetrics {
     setTitle("MultilayerPerceptron");
   }
 
-  public static Comparator<? super MPEvaluationMetrics> getComparator() {
-    return Comparator.comparing(MPEvaluationMetrics::getKappaStatistic)
-      .thenComparing(MPEvaluationMetrics::getCorrectlyClassifiedInstances)
-      .thenComparing(MPEvaluationMetrics::getTimeTakenToBuildModel)
-      .thenComparing(MPEvaluationMetrics::getTimeTakenToPerformCrossValidation)
-      .thenComparing(MPEvaluationMetrics::getIncorrectlyClassifiedInstances);
+  public static Comparator<EvaluationMetrics> getComparator() {
+    return Comparator.comparing(EvaluationMetrics::getKappaStatistic)
+      .thenComparing(EvaluationMetrics::getCorrectlyClassifiedInstances)
+      .thenComparing(EvaluationMetrics::getTimeTakenToBuildModel)
+      .thenComparing(EvaluationMetrics::getTimeTakenToPerformCrossValidation)
+      .thenComparing(EvaluationMetrics::getIncorrectlyClassifiedInstances);
   }
 
   @Override

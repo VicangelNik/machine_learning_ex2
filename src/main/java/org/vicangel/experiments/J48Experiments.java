@@ -33,7 +33,6 @@ public final class J48Experiments extends AlgorithmExperiments {
 
     final List<J48EvaluationMetrics> metricsList = new ArrayList<>();
 
-    //default -M 2 -C 0.25
     final String[] confidenceFactors = new String[]{"0.05", "0.1", "0.15", "0.2", "0.25", "0.3", "0.35", "0.4", "0.45", "0.5"};
     // Whether pruning is performed.
     final String[] unPruned = new String[]{"-U", ""};
@@ -127,5 +126,10 @@ public final class J48Experiments extends AlgorithmExperiments {
     }
     metricsList.sort(J48EvaluationMetrics.getComparator());
     writeToFile(metricsList);
+  }
+
+  @Override
+  public String getDefaultWekaOptionsSet() {
+    return "-M 2 -C 0.25";
   }
 }

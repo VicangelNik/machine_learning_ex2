@@ -56,6 +56,6 @@ public class J48EvaluationMetrics extends EvaluationMetrics {
   public String toString() {
     return "J48EvaluationMetrics{" +
            "numberOfLeaves=" + numberOfLeaves +
-           ", sizeOfTree=" + sizeOfTree + super.toString();
+           ", sizeOfTree=" + sizeOfTree + ", " + super.toString();
   }
 }

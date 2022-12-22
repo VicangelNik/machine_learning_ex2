@@ -1,8 +1,14 @@
 package org.vicangel.experiments;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import org.vicangel.ClassifierFactory;
 import org.vicangel.metrics.MPEvaluationMetrics;
@@ -14,17 +20,15 @@ import org.vicangel.reader.DataReader;
 public final class MultilayerPerceptronExperiments extends AlgorithmExperiments {
 
   @Override
-  public void performExperiments() throws Exception {
+  public void performExperiments() {
     final List<MPEvaluationMetrics> metricsList = new ArrayList<>();
+    final List<CompletableFuture<Void>> evaluationFutureList = Collections.synchronizedList(new LinkedList<>());
 
-    //default -L 0.3 -M 0.2 -N 500 -V 0 -S 0 -E 20 -H a
+    final Executor executor = Executors.newFixedThreadPool(10);
 
     final String[] learningRates = new String[]{"0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1"}; // -L
-
     final String[] momentumRates = new String[]{"0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1"}; // -M
-
     final String[] decay = new String[]{"-D", ""};
-
     final String[] numHiddenLayers = new String[]{"a", "i", "o", "t"};
 
     for (String numHiddenLayer : numHiddenLayers) { // The hidden layers to be created for the network.
@@ -60,10 +64,18 @@ public final class MultilayerPerceptronExperiments extends AlgorithmExperiments 
                       .add("-t")
                       .add(DataReader.MUSHROOM_FILE);
 
-                    final String evaluationOutput = ClassifierFactory.buildAndEvaluateModel(joiner.toString(), "M");
-                    final MPEvaluationMetrics mp = new MPEvaluationMetrics(evaluationOutput);
-                    metricsList.add(mp);
-                    System.out.println(mp);
+                    CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
+                      try {
+                        return ClassifierFactory.buildAndEvaluateModel(joiner.toString(), "M");
+                      } catch (Exception e) {
+                        throw new RuntimeException(e);
+                      }
+                    }, executor).thenAcceptAsync(evaluationOutput -> {
+                      final MPEvaluationMetrics mp = new MPEvaluationMetrics(evaluationOutput);
+                      metricsList.add(mp);
+                      System.out.println(mp);
+                    });
+                    evaluationFutureList.add(future);
                   }
                 }
               }
@@ -71,12 +83,20 @@ public final class MultilayerPerceptronExperiments extends AlgorithmExperiments 
           }
         }
       }
-      metricsList.sort(MPEvaluationMetrics.getComparator());
-      writeToFile(metricsList);
+      CompletableFuture.allOf(evaluationFutureList.toArray(new CompletableFuture[0]))
+        .thenAccept(c -> {
+          metricsList.sort(MPEvaluationMetrics.getComparator());
+          try {
+            writeToFile(metricsList);
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
     }
+  }
 
-//    newVector.addElement(new Option("\tA NominalToBinary filter will NOT automatically be used.\n\t(Set this to not use a NominalToBinary filter).", "B", 0, "-B"));
-//    newVector.addElement(new Option("\tNormalizing the attributes will NOT be done.\n\t(Set this to not normalize the attributes).", "I", 0, "-I"));
-//    newVector.addElement(new Option("\tReseting the network will NOT be allowed.\n\t(Set this to not allow the network to reset).", "R", 0, "-R"));
+  @Override
+  public String getDefaultWekaOptionsSet() {
+    return "-L 0.3 -M 0.2 -N 500 -V 0 -S 0 -E 20 -H a";
   }
 }

@@ -1,6 +1,6 @@
 package org.vicangel;
 
-import org.vicangel.experiments.IBKExperiments;
+import org.vicangel.experiments.SGDExperiments;
 
 /**
  * @author Nikiforos Xylogiannopoulos
@@ -16,6 +16,7 @@ public class Main {
     // new J48Experiments().performExperiments();
     // new J48Experiments().performReducedErrorPruningExperiments();
     // new MultilayerPerceptronExperiments().performExperiments();
-    new IBKExperiments().performExperiments();
+    // new IBKExperiments().performExperiments();
+    new SGDExperiments().performExperiments();
   }
 }

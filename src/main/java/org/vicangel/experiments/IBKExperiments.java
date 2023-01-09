@@ -1,21 +1,32 @@
 package org.vicangel.experiments;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.Logger;
 
 import org.vicangel.ClassifierFactory;
+import org.vicangel.metrics.EvaluationMetrics;
 import org.vicangel.metrics.IBKEvaluationMetrics;
 import org.vicangel.reader.DataReader;
+
+import static org.vicangel.helpers.ThrowingConsumer.throwingConsumerWrapper;
+import static org.vicangel.helpers.ThrowingSupplier.throwingSupplierWrapper;
 
 /**
  * @author Nikiforos Xylogiannopoulos
  */
 public class IBKExperiments extends AlgorithmExperiments {
 
+  private static final Logger LOGGER = Logger.getLogger(IBKExperiments.class.getName());
+
   @Override
-  public void performExperiments() throws Exception {
-    final List<IBKEvaluationMetrics> metricsList = new ArrayList<>();
+  public void performExperiments() {
+    LOGGER.info("Starting IBK tests");
+    final List<EvaluationMetrics> metricsList = new ArrayList<>();
+    final List<CompletableFuture<Void>> evaluationFutureList = Collections.synchronizedList(new ArrayList<>());
 
     // Select the number of nearest neighbours between 1 and the k value specified using hold-one-out evaluation on the training data (use when k > 1)
     final String[] crossValidate = new String[]{"-X", ""};
@@ -48,20 +59,25 @@ public class IBKExperiments extends AlgorithmExperiments {
                     .add("-A")
                     .add("\\\"")
                     .add(dFunction)
-                    .add("\\\"")
                     // options for distance function
                     .add(invert)
-                    .add("\"")
+                    .add("\\\"")
                     // options for nearest Neighbour Search Algorithm
                     .add("-P") // Always calculate performance statistics for the NN search.
                     .add(sIdentical)
+                    .add("\"")
                     // options for evaluator
                     .add("-t")
                     .add(DataReader.MUSHROOM_FILE);
 
-                  final String evaluationOutput = ClassifierFactory.buildAndEvaluateModel(joiner.toString(), "I");
-
-                  metricsList.add(new IBKEvaluationMetrics(evaluationOutput));
+                  final CompletableFuture<Void> completableFuture = CompletableFuture.supplyAsync(
+                    throwingSupplierWrapper(() -> ClassifierFactory.buildAndEvaluateModel(joiner.toString(), "I")),
+                    executor).thenAcceptAsync(evaluationOutput -> {
+                    final var ibkEvaluationMetrics = new IBKEvaluationMetrics(evaluationOutput);
+                    metricsList.add(ibkEvaluationMetrics);
+                    LOGGER.info(ibkEvaluationMetrics::toString);
+                  });
+                  evaluationFutureList.add(completableFuture);
                 }
               }
             }
@@ -69,8 +85,11 @@ public class IBKExperiments extends AlgorithmExperiments {
         }
       }
     }
-    metricsList.sort(IBKEvaluationMetrics.getComparator());
-    writeToFile(metricsList);
+    CompletableFuture.allOf(evaluationFutureList.toArray(new CompletableFuture[0]))
+      .thenAccept(throwingConsumerWrapper(c -> {
+        metricsList.sort(IBKEvaluationMetrics.getComparator());
+        writeToFile(metricsList);
+      }));
   }
 
   @Override

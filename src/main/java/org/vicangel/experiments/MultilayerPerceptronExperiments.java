@@ -1,30 +1,30 @@
 package org.vicangel.experiments;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import org.vicangel.ClassifierFactory;
 import org.vicangel.metrics.MPEvaluationMetrics;
 import org.vicangel.reader.DataReader;
+
+import static org.vicangel.helpers.ThrowingConsumer.throwingConsumerWrapper;
+import static org.vicangel.helpers.ThrowingSupplier.throwingSupplierWrapper;
 
 /**
  * @author Nikiforos Xylogiannopoulos
  */
 public final class MultilayerPerceptronExperiments extends AlgorithmExperiments {
 
+  private static final Logger LOGGER = Logger.getLogger(MultilayerPerceptronExperiments.class.getName());
+
   @Override
   public void performExperiments() {
     final List<MPEvaluationMetrics> metricsList = new ArrayList<>();
-    final List<CompletableFuture<Void>> evaluationFutureList = Collections.synchronizedList(new LinkedList<>());
-
-    final Executor executor = Executors.newFixedThreadPool(10);
+    final List<CompletableFuture<Void>> evaluationFutureList = Collections.synchronizedList(new ArrayList<>());
 
     final String[] learningRates = new String[]{"0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1"}; // -L
     final String[] momentumRates = new String[]{"0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1"}; // -M
@@ -64,18 +64,14 @@ public final class MultilayerPerceptronExperiments extends AlgorithmExperiments 
                       .add("-t")
                       .add(DataReader.MUSHROOM_FILE);
 
-                    CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
-                      try {
-                        return ClassifierFactory.buildAndEvaluateModel(joiner.toString(), "M");
-                      } catch (Exception e) {
-                        throw new RuntimeException(e);
-                      }
-                    }, executor).thenAcceptAsync(evaluationOutput -> {
-                      final MPEvaluationMetrics mp = new MPEvaluationMetrics(evaluationOutput);
-                      metricsList.add(mp);
-                      System.out.println(mp);
+                    final CompletableFuture<Void> completableFuture = CompletableFuture.supplyAsync(
+                      throwingSupplierWrapper(() -> ClassifierFactory.buildAndEvaluateModel(joiner.toString(), "M")),
+                      executor).thenAcceptAsync(evaluationOutput -> {
+                      final var mpEvaluationMetrics = new MPEvaluationMetrics(evaluationOutput);
+                      metricsList.add(mpEvaluationMetrics);
+                      LOGGER.fine(mpEvaluationMetrics::toString);
                     });
-                    evaluationFutureList.add(future);
+                    evaluationFutureList.add(completableFuture);
                   }
                 }
               }
@@ -84,14 +80,10 @@ public final class MultilayerPerceptronExperiments extends AlgorithmExperiments 
         }
       }
       CompletableFuture.allOf(evaluationFutureList.toArray(new CompletableFuture[0]))
-        .thenAccept(c -> {
+        .thenAccept(throwingConsumerWrapper(c -> {
           metricsList.sort(MPEvaluationMetrics.getComparator());
-          try {
-            writeToFile(metricsList);
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-        });
+          writeToFile(metricsList);
+        }));
     }
   }
 

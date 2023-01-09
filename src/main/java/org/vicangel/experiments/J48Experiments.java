@@ -1,17 +1,25 @@
 package org.vicangel.experiments;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.Logger;
 
 import org.vicangel.ClassifierFactory;
 import org.vicangel.metrics.J48EvaluationMetrics;
 import org.vicangel.reader.DataReader;
 
+import static org.vicangel.helpers.ThrowingConsumer.throwingConsumerWrapper;
+import static org.vicangel.helpers.ThrowingSupplier.throwingSupplierWrapper;
+
 /**
  * @author Nikiforos Xylogiannopoulos
  */
 public final class J48Experiments extends AlgorithmExperiments {
+
+  private static final Logger LOGGER = Logger.getLogger(J48Experiments.class.getName());
 
   // Whether parts are removed that do not reduce training error.
   private final String[] collapseTree = new String[]{"-O", ""}; // -O indicates false default is true
@@ -26,12 +34,11 @@ public final class J48Experiments extends AlgorithmExperiments {
 
   /**
    * Perform for C45 algorithm experiments
-   *
-   * @throws Exception
    */
-  public void performExperiments() throws Exception {
+  public void performExperiments() {
 
     final List<J48EvaluationMetrics> metricsList = new ArrayList<>();
+    final List<CompletableFuture<Void>> evaluationFutureList = Collections.synchronizedList(new ArrayList<>());
 
     final String[] confidenceFactors = new String[]{"0.05", "0.1", "0.15", "0.2", "0.25", "0.3", "0.35", "0.4", "0.45", "0.5"};
     // Whether pruning is performed.
@@ -61,9 +68,14 @@ public final class J48Experiments extends AlgorithmExperiments {
                       .add("-t")
                       .add(DataReader.MUSHROOM_FILE);
 
-                    final String evaluationOutput = ClassifierFactory.buildAndEvaluateModel(joiner.toString(), "T");
-
-                    metricsList.add(new J48EvaluationMetrics(evaluationOutput));
+                    final CompletableFuture<Void> completableFuture = CompletableFuture.supplyAsync(
+                      throwingSupplierWrapper(() -> ClassifierFactory.buildAndEvaluateModel(joiner.toString(), "T")),
+                      executor).thenAcceptAsync(evaluationOutput -> {
+                      final var j48EvaluationMetrics = new J48EvaluationMetrics(evaluationOutput);
+                      metricsList.add(j48EvaluationMetrics);
+                      LOGGER.info(j48EvaluationMetrics::toString);
+                    });
+                    evaluationFutureList.add(completableFuture);
                   }
                 }
               }
@@ -72,10 +84,11 @@ public final class J48Experiments extends AlgorithmExperiments {
         }
       }
     }
-
-    metricsList.sort(J48EvaluationMetrics.getComparator());
-    writeToFile(metricsList);
-    //list.stream().toList().forEach(x -> System.out.println(x.toString()));
+    CompletableFuture.allOf(evaluationFutureList.toArray(new CompletableFuture[0]))
+      .thenAccept(throwingConsumerWrapper(c -> {
+        metricsList.sort(J48EvaluationMetrics.getComparator());
+        writeToFile(metricsList);
+      }));
   }
 
   private static String isUnPrunedValueAppropriate(String unPruned, String treeRaising, String confidenceFactor) {

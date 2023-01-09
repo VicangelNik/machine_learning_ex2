@@ -15,12 +15,12 @@ public final class IBKEvaluationMetrics extends EvaluationMetrics {
       .ifPresent(this::setClassifierOptions);
   }
 
-  public static Comparator<IBKEvaluationMetrics> getComparator() {
-    return Comparator.comparing(IBKEvaluationMetrics::getKappaStatistic)
-      .thenComparing(IBKEvaluationMetrics::getCorrectlyClassifiedInstances)
-      .thenComparing(IBKEvaluationMetrics::getTimeTakenToBuildModel)
-      .thenComparing(IBKEvaluationMetrics::getTimeTakenToPerformCrossValidation)
-      .thenComparing(IBKEvaluationMetrics::getIncorrectlyClassifiedInstances);
+  public static Comparator<EvaluationMetrics> getComparator() {
+    return Comparator.comparing(EvaluationMetrics::getKappaStatistic)
+      .thenComparing(EvaluationMetrics::getCorrectlyClassifiedInstances)
+      .thenComparing(EvaluationMetrics::getTimeTakenToBuildModel)
+      .thenComparing(EvaluationMetrics::getTimeTakenToPerformCrossValidation)
+      .thenComparing(EvaluationMetrics::getIncorrectlyClassifiedInstances);
   }
 
   @Override

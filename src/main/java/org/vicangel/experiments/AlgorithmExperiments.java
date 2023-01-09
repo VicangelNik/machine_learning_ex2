@@ -1,11 +1,13 @@
 package org.vicangel.experiments;
 
 import java.io.IOException;
-import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.vicangel.metrics.EvaluationMetrics;
-import org.vicangel.metrics.MPEvaluationMetrics;
 import org.vicangel.writer.FileWriterHandler;
 import org.vicangel.writer.IFileWriter;
 
@@ -14,7 +16,17 @@ import org.vicangel.writer.IFileWriter;
  */
 public abstract class AlgorithmExperiments implements FileWriteable {
 
+  private static final Logger LOGGER = Logger.getLogger(AlgorithmExperiments.class.getName());
+  private final int availableProcessors = Runtime.getRuntime().availableProcessors();
+
+  {
+    LOGGER.log(Level.INFO, "Available processors for parallel execution: {0}", availableProcessors);
+  }
+
+  protected final Executor executor = Executors.newFixedThreadPool(availableProcessors);
+
   public abstract void performExperiments() throws Exception;
+
   public abstract String getDefaultWekaOptionsSet();
 
   @Override

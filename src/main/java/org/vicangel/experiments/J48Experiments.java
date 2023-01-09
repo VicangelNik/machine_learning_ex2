@@ -68,14 +68,7 @@ public final class J48Experiments extends AlgorithmExperiments {
                       .add("-t")
                       .add(DataReader.MUSHROOM_FILE);
 
-                    final CompletableFuture<Void> completableFuture = CompletableFuture.supplyAsync(
-                      throwingSupplierWrapper(() -> ClassifierFactory.buildAndEvaluateModel(joiner.toString(), "T")),
-                      executor).thenAcceptAsync(evaluationOutput -> {
-                      final var j48EvaluationMetrics = new J48EvaluationMetrics(evaluationOutput);
-                      metricsList.add(j48EvaluationMetrics);
-                      LOGGER.info(j48EvaluationMetrics::toString);
-                    });
-                    evaluationFutureList.add(completableFuture);
+                    getModelFutureTaskAndAddToList(joiner, metricsList, evaluationFutureList);
                   }
                 }
               }
@@ -84,20 +77,17 @@ public final class J48Experiments extends AlgorithmExperiments {
         }
       }
     }
-    CompletableFuture.allOf(evaluationFutureList.toArray(new CompletableFuture[0]))
-      .thenAccept(throwingConsumerWrapper(c -> {
-        metricsList.sort(J48EvaluationMetrics.getComparator());
-        writeToFile(metricsList);
-      }));
+    completeAllAndWriteToFile(metricsList, evaluationFutureList);
   }
 
   private static String isUnPrunedValueAppropriate(String unPruned, String treeRaising, String confidenceFactor) {
     return treeRaising.isEmpty() && "0.25".equals(confidenceFactor) ? unPruned : "";
   }
 
-  public void performReducedErrorPruningExperiments() throws Exception {
+  public void performReducedErrorPruningExperiments() {
 
     final List<J48EvaluationMetrics> metricsList = new ArrayList<>();
+    final List<CompletableFuture<Void>> evaluationFutureList = Collections.synchronizedList(new ArrayList<>());
 
     //default -R -N 3 -Q 1 -M 2
 
@@ -126,9 +116,7 @@ public final class J48Experiments extends AlgorithmExperiments {
                       .add("-t")
                       .add(DataReader.MUSHROOM_FILE);
 
-                    final String evaluationOutput = ClassifierFactory.buildAndEvaluateModel(joiner.toString(), "T");
-
-                    metricsList.add(new J48EvaluationMetrics(evaluationOutput));
+                    getModelFutureTaskAndAddToList(joiner, metricsList, evaluationFutureList);
                   }
                 }
               }
@@ -137,8 +125,28 @@ public final class J48Experiments extends AlgorithmExperiments {
         }
       }
     }
-    metricsList.sort(J48EvaluationMetrics.getComparator());
-    writeToFile(metricsList);
+    completeAllAndWriteToFile(metricsList, evaluationFutureList);
+  }
+
+  private void getModelFutureTaskAndAddToList(final StringJoiner joiner, final List<J48EvaluationMetrics> metricsList,
+                                              final List<CompletableFuture<Void>> evaluationFutureList) {
+    final CompletableFuture<Void> completableFuture = CompletableFuture.supplyAsync(
+      throwingSupplierWrapper(() -> ClassifierFactory.buildAndEvaluateModel(joiner.toString(), "T")),
+      executor).thenAcceptAsync(evaluationOutput -> {
+      final var j48EvaluationMetrics = new J48EvaluationMetrics(evaluationOutput);
+      metricsList.add(j48EvaluationMetrics);
+      LOGGER.info(j48EvaluationMetrics::toString);
+    });
+    evaluationFutureList.add(completableFuture);
+  }
+
+  private void completeAllAndWriteToFile(final List<J48EvaluationMetrics> metricsList,
+                                         final List<CompletableFuture<Void>> evaluationFutureList) {
+    CompletableFuture.allOf(evaluationFutureList.toArray(new CompletableFuture[0]))
+      .thenAccept(throwingConsumerWrapper(c -> {
+        metricsList.sort(J48EvaluationMetrics.getComparator());
+        writeToFile(metricsList);
+      }));
   }
 
   @Override

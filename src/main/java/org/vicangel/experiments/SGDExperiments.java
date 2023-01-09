@@ -56,7 +56,7 @@ public class SGDExperiments extends AlgorithmExperiments {
                 executor).thenAcceptAsync(evaluationOutput -> {
                 final var sgdEvaluationMetrics = new SGDEvaluationMetrics(evaluationOutput);
                 metricsList.add(sgdEvaluationMetrics);
-                LOGGER.fine(sgdEvaluationMetrics::toString);
+                LOGGER.info(sgdEvaluationMetrics::toString);
               });
               evaluationFutureList.add(completableFuture);
             }

@@ -69,7 +69,7 @@ public final class MultilayerPerceptronExperiments extends AlgorithmExperiments 
                       executor).thenAcceptAsync(evaluationOutput -> {
                       final var mpEvaluationMetrics = new MPEvaluationMetrics(evaluationOutput);
                       metricsList.add(mpEvaluationMetrics);
-                      LOGGER.fine(mpEvaluationMetrics::toString);
+                      LOGGER.info(mpEvaluationMetrics::toString);
                     });
                     evaluationFutureList.add(completableFuture);
                   }

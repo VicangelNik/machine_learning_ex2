@@ -22,7 +22,7 @@ public final class NaiveBayesExperiments extends AlgorithmExperiments {
   }
 
   @Override
-  public void performExperiments() throws Exception {
+  public void performExperiments() {
 
   }
 

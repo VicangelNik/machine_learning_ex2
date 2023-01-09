@@ -17,7 +17,7 @@ import org.vicangel.writer.IFileWriter;
 public abstract class AlgorithmExperiments implements FileWriteable {
 
   private static final Logger LOGGER = Logger.getLogger(AlgorithmExperiments.class.getName());
-  private final int availableProcessors = Runtime.getRuntime().availableProcessors();
+  private final int availableProcessors = Runtime.getRuntime().availableProcessors() - 2;
 
   {
     LOGGER.log(Level.INFO, "Available processors for parallel execution: {0}", availableProcessors);

@@ -17,7 +17,7 @@ import org.vicangel.writer.IFileWriter;
 public abstract class AlgorithmExperiments implements FileWriteable {
 
   private static final Logger LOGGER = Logger.getLogger(AlgorithmExperiments.class.getName());
-  private final int availableProcessors = Runtime.getRuntime().availableProcessors() - 2;
+  private final int availableProcessors = Runtime.getRuntime().availableProcessors() - 1;
 
   {
     LOGGER.log(Level.INFO, "Available processors for parallel execution: {0}", availableProcessors);
@@ -27,7 +27,7 @@ public abstract class AlgorithmExperiments implements FileWriteable {
 
   public abstract void performExperiments() throws Exception;
 
-  public abstract String getDefaultWekaOptionsSet();
+  protected abstract String getDefaultWekaOptionsSet();
 
   @Override
   public void writeToFile(final List<? extends EvaluationMetrics> metricsList) throws IOException {

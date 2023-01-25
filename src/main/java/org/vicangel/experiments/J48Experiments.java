@@ -36,7 +36,7 @@ public final class J48Experiments extends AlgorithmExperiments {
    * Perform for C45 algorithm experiments
    */
   public void performExperiments() {
-
+    LOGGER.info("Starting J48Experiments tests");
     final List<J48EvaluationMetrics> metricsList = new ArrayList<>();
     final List<CompletableFuture<Void>> evaluationFutureList = Collections.synchronizedList(new ArrayList<>());
 
@@ -85,7 +85,7 @@ public final class J48Experiments extends AlgorithmExperiments {
   }
 
   public void performReducedErrorPruningExperiments() {
-
+    LOGGER.info("Starting J48Experiments performReducedErrorPruningExperiments tests");
     final List<J48EvaluationMetrics> metricsList = new ArrayList<>();
     final List<CompletableFuture<Void>> evaluationFutureList = Collections.synchronizedList(new ArrayList<>());
 
@@ -135,7 +135,7 @@ public final class J48Experiments extends AlgorithmExperiments {
       executor).thenAcceptAsync(evaluationOutput -> {
       final var j48EvaluationMetrics = new J48EvaluationMetrics(evaluationOutput);
       metricsList.add(j48EvaluationMetrics);
-      LOGGER.info(j48EvaluationMetrics::toString);
+      System.out.println(j48EvaluationMetrics);
     });
     evaluationFutureList.add(completableFuture);
   }

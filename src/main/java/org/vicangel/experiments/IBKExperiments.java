@@ -75,7 +75,7 @@ public class IBKExperiments extends AlgorithmExperiments {
                     executor).thenAcceptAsync(evaluationOutput -> {
                     final var ibkEvaluationMetrics = new IBKEvaluationMetrics(evaluationOutput);
                     metricsList.add(ibkEvaluationMetrics);
-                    LOGGER.info(ibkEvaluationMetrics::toString);
+                    System.out.println(ibkEvaluationMetrics);
                   });
                   evaluationFutureList.add(completableFuture);
                 }

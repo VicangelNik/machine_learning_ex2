@@ -23,6 +23,7 @@ public final class MultilayerPerceptronExperiments extends AlgorithmExperiments 
 
   @Override
   public void performExperiments() {
+    LOGGER.info("Starting MultilayerPerceptronExperiments tests");
     final List<MPEvaluationMetrics> metricsList = new ArrayList<>();
     final List<CompletableFuture<Void>> evaluationFutureList = Collections.synchronizedList(new ArrayList<>());
 
@@ -69,7 +70,7 @@ public final class MultilayerPerceptronExperiments extends AlgorithmExperiments 
                       executor).thenAcceptAsync(evaluationOutput -> {
                       final var mpEvaluationMetrics = new MPEvaluationMetrics(evaluationOutput);
                       metricsList.add(mpEvaluationMetrics);
-                      LOGGER.info(mpEvaluationMetrics::toString);
+                      System.out.println(mpEvaluationMetrics);
                     });
                     evaluationFutureList.add(completableFuture);
                   }

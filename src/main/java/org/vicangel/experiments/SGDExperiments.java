@@ -23,6 +23,7 @@ public class SGDExperiments extends AlgorithmExperiments {
 
   @Override
   public void performExperiments() {
+    LOGGER.info("Starting SGDExperiments tests");
     final List<SGDEvaluationMetrics> metricsList = new ArrayList<>();
     final List<CompletableFuture<Void>> evaluationFutureList = Collections.synchronizedList(new ArrayList<>());
 
@@ -31,7 +32,7 @@ public class SGDExperiments extends AlgorithmExperiments {
     // The epsilon threshold for epsilon insensitive and Huber loss.
     final String[] epsilonThresholds = new String[]{"0.0001", "0.005", "0.001", "0.005", "0.01"};
     // Number of epochs to train through.
-    for (int numberOfEpochs = 100; numberOfEpochs <= 1000; numberOfEpochs += 100) { // -E
+    for (int numberOfEpochs = 100; numberOfEpochs <= 800; numberOfEpochs += 100) { // -E
       for (String learningRate : learningRates) {
         for (String lambda : regularizationConstants) {
           for (String epsilon : epsilonThresholds) {
@@ -56,7 +57,7 @@ public class SGDExperiments extends AlgorithmExperiments {
                 executor).thenAcceptAsync(evaluationOutput -> {
                 final var sgdEvaluationMetrics = new SGDEvaluationMetrics(evaluationOutput);
                 metricsList.add(sgdEvaluationMetrics);
-                LOGGER.info(sgdEvaluationMetrics::toString);
+                System.out.println(sgdEvaluationMetrics);
               });
               evaluationFutureList.add(completableFuture);
             }

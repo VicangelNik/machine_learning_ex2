@@ -15,8 +15,8 @@ public class DataReader implements IReader {
   private static final Logger LOGGER = Logger.getLogger(DataReader.class.getName());
 
   public Instances getInstancesFromDataSource(final String sourcePath) throws Exception {
-    final String sourcePath1 = sourcePath != null ? sourcePath : MUSHROOM_FILE;
-    final var source = new DataSource(sourcePath1);
+    final String finalSourcePath = sourcePath != null ? sourcePath : MUSHROOM_FILE;
+    final var source = new DataSource(finalSourcePath);
     final Instances data = source.getDataSet();
     // setting class attribute if the data format does not provide this information
     // For example, the XRFF format saves the class attribute information as well

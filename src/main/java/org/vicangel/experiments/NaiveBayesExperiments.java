@@ -1,8 +1,10 @@
 package org.vicangel.experiments;
 
 import java.util.Random;
+import java.util.StringJoiner;
 
 import org.vicangel.ClassifierFactory;
+import org.vicangel.reader.DataReader;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.evaluation.Evaluation;
@@ -13,8 +15,15 @@ import weka.core.Instances;
  */
 public final class NaiveBayesExperiments extends AlgorithmExperiments {
 
+  private static final String USE_CASE = "NaiveBayes";
+
+  public NaiveBayesExperiments() {
+    super(USE_CASE);
+  }
+
+  @Deprecated
   public static void performNaiveBayesExperiments(final Instances instances) throws Exception {
-    // -K or -D have no effect as mushroom.arf is a nominal dataset. Also, can not be used together.
+    // -K or -D have no effect as mushroom.arf as is a nominal dataset. Also, can not be used together.
     final AbstractClassifier classifier = ClassifierFactory.getClassifier("");
     final var eval = new Evaluation(instances);
     eval.crossValidateModel(classifier, instances, 10, new Random(1));
@@ -22,8 +31,22 @@ public final class NaiveBayesExperiments extends AlgorithmExperiments {
   }
 
   @Override
-  public void performExperiments() {
+  public void performExperiments(final boolean useConcurrency) {
+    // -K or -D have no effect as mushroom.arf as is a nominal dataset. Also, can not be used together.
+    final var joiner = new StringJoiner(" ")
+      // options for evaluator
+      .add("-t")
+      .add(DataReader.MUSHROOM_FILE);
 
+    final String options = joiner.toString();
+
+    try {
+      final String evaluationOutput = ClassifierFactory.buildAndEvaluateModel(options, "");
+      System.out.println(evaluationOutput);
+      writeToFile(evaluationOutput);
+    } catch (Exception e) {
+      System.out.println(e.getMessage() + "\tOptions when error Occurred: " + options);
+    }
   }
 
   @Override

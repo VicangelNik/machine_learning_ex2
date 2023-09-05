@@ -1,8 +1,11 @@
 package org.vicangel.experiments;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
@@ -20,19 +23,25 @@ import static org.vicangel.helpers.ThrowingSupplier.throwingSupplierWrapper;
 public class SGDExperiments extends AlgorithmExperiments {
 
   private static final Logger LOGGER = Logger.getLogger(SGDExperiments.class.getName());
+  private static final String USE_CASE = "SGD";
+
+  public SGDExperiments() {
+    super(USE_CASE);
+  }
 
   @Override
-  public void performExperiments() {
+  public void performExperiments(final boolean useConcurrency) {
     LOGGER.info("Starting SGDExperiments tests");
     final List<SGDEvaluationMetrics> metricsList = new ArrayList<>();
     final List<CompletableFuture<Void>> evaluationFutureList = Collections.synchronizedList(new ArrayList<>());
+    final Map<Integer, String> optionsList = new LinkedHashMap<>();
 
-    final String[] learningRates = new String[]{"0.01", "0.02", "0.03", "0.04", "0.05", "0.06", "0.07", "0.08", "0.09", "0.1"};
-    final String[] regularizationConstants = new String[]{"1.0E-3", "1.0E-4", "1.0E-5", "0.5E-3", "0.5E-4", "0.5E-5"}; // -R
-    // The epsilon threshold for epsilon insensitive and Huber loss.
-    final String[] epsilonThresholds = new String[]{"0.0001", "0.005", "0.001", "0.005", "0.01"};
+    final String[] learningRates = new String[]{"0.005", "0.01", "0.02"};
+    final String[] regularizationConstants = new String[]{"1.0E-3", "1.0E-4", "1.0E-5"}; // -R
+    // The epsilon threshold for epsilon insensitive and Huber loss. Does not make any difference here.
+    final String[] epsilonThresholds = new String[]{"0.001"};
     // Number of epochs to train through.
-    for (int numberOfEpochs = 100; numberOfEpochs <= 800; numberOfEpochs += 100) { // -E
+    for (int numberOfEpochs = 300; numberOfEpochs <= 700; numberOfEpochs += 200) { // -E
       for (String learningRate : learningRates) {
         for (String lambda : regularizationConstants) {
           for (String epsilon : epsilonThresholds) {
@@ -45,6 +54,8 @@ public class SGDExperiments extends AlgorithmExperiments {
                 .add("-R")
                 .add(lambda)
                 .add("-E")
+                .add(String.valueOf(numberOfEpochs))
+                .add("-C")
                 .add(epsilon)
                 .add("-S")
                 .add(String.valueOf(seed))
@@ -52,24 +63,69 @@ public class SGDExperiments extends AlgorithmExperiments {
                 .add("-t")
                 .add(DataReader.MUSHROOM_FILE);
 
-              final CompletableFuture<Void> completableFuture = CompletableFuture.supplyAsync(
-                throwingSupplierWrapper(() -> ClassifierFactory.buildAndEvaluateModel(joiner.toString(), "S")),
-                executor).thenAcceptAsync(evaluationOutput -> {
-                final var sgdEvaluationMetrics = new SGDEvaluationMetrics(evaluationOutput);
-                metricsList.add(sgdEvaluationMetrics);
-                System.out.println(sgdEvaluationMetrics);
-              });
-              evaluationFutureList.add(completableFuture);
+              final String options = joiner.toString();
+
+              if (!optionsList.containsValue(options)) {
+                optionsList.put(optionsCounter++, options);
+              }
             }
           }
         }
       }
     }
-    CompletableFuture.allOf(evaluationFutureList.toArray(new CompletableFuture[0]))
-      .thenAccept(throwingConsumerWrapper(c -> {
-        metricsList.sort(SGDEvaluationMetrics.getComparator());
-        writeToFile(metricsList);
+
+    printNumberOfExperiments(optionsList.size());
+
+    optionsList.forEach((count, options) -> evaluate(options, metricsList, useConcurrency, evaluationFutureList, count));
+
+    writeInFile(metricsList, useConcurrency, evaluationFutureList);
+  }
+
+  private void evaluate(String options,
+                        List<SGDEvaluationMetrics> metricsList,
+                        boolean useConcurrency,
+                        List<CompletableFuture<Void>> evaluationFutureList,
+                        Integer count) {
+
+    if (useConcurrency) {
+      final CompletableFuture<Void> completableFuture = CompletableFuture.supplyAsync(
+        throwingSupplierWrapper(() -> ClassifierFactory.buildAndEvaluateModel(options, "S")),
+        executor).thenAcceptAsync(throwingConsumerWrapper(evaluationOutput -> {
+        final var sgdEvaluationMetrics = new SGDEvaluationMetrics(evaluationOutput);
+        metricsList.add(sgdEvaluationMetrics);
+        System.out.println(count + ": " + sgdEvaluationMetrics);
       }));
+      evaluationFutureList.add(completableFuture);
+    } else {
+      try {
+        final String evaluationOutput = ClassifierFactory.buildAndEvaluateModel(options, "S");
+        final var sgdEvaluationMetrics = new SGDEvaluationMetrics(evaluationOutput);
+        metricsList.add(sgdEvaluationMetrics);
+        System.out.println(count + ": " + sgdEvaluationMetrics);
+      } catch (Exception e) {
+        // throw new RuntimeException(e);
+        System.out.println(count + ": " + e.getMessage() + "\tOptions when error Occurred: " + options);
+      }
+    }
+  }
+
+  private void writeInFile(List<SGDEvaluationMetrics> metricsList, boolean useConcurrency,
+                           List<CompletableFuture<Void>> evaluationFutureList) {
+    if (useConcurrency) {
+      CompletableFuture.allOf(evaluationFutureList.toArray(new CompletableFuture[0]))
+        .thenAccept(throwingConsumerWrapper(c -> {
+          metricsList.sort(SGDEvaluationMetrics.getComparator());
+          writeToFile(metricsList);
+        })).whenComplete((c, throwable) -> System.exit(666));
+    } else {
+      metricsList.sort(SGDEvaluationMetrics.getComparator());
+      try {
+        writeToFile(metricsList);
+      } catch (IOException e) {
+        System.out.println(e.getMessage());
+        // throw new RuntimeException(e);
+      }
+    }
   }
 
   @Override

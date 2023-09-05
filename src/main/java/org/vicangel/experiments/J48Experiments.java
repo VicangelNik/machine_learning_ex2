@@ -20,6 +20,7 @@ import static org.vicangel.helpers.ThrowingSupplier.throwingSupplierWrapper;
 public final class J48Experiments extends AlgorithmExperiments {
 
   private static final Logger LOGGER = Logger.getLogger(J48Experiments.class.getName());
+  private static final String USE_CASE = "J48";
 
   // Whether parts are removed that do not reduce training error.
   private final String[] collapseTree = new String[]{"-O", ""}; // -O indicates false default is true
@@ -30,13 +31,17 @@ public final class J48Experiments extends AlgorithmExperiments {
   // Whether counts at leaves are smoothed based on Laplace.
   private final String[] useLaplace = new String[]{"-A", ""}; // -A indicates true default is false
   // Do not perform subtree raising.
-  private final String[] subtreeRaising = new String[]{"-S", ""};
+  private final String[] subtreeRaising = new String[]{"-S", ""}; //  Whether to consider the subtree raising operation when pruning.
+
+  public J48Experiments() {
+    super(USE_CASE);
+  }
 
   /**
-   * Perform for C45 algorithm experiments
+   * Perform for C4.5 algorithm experiments
    */
-  public void performExperiments() {
-    LOGGER.info("Starting J48Experiments tests");
+  public void performExperiments(final boolean useConcurrency) {
+    LOGGER.info("Starting J48 Experiments - C4.5 tests");
     final List<J48EvaluationMetrics> metricsList = new ArrayList<>();
     final List<CompletableFuture<Void>> evaluationFutureList = Collections.synchronizedList(new ArrayList<>());
 
@@ -80,12 +85,13 @@ public final class J48Experiments extends AlgorithmExperiments {
     completeAllAndWriteToFile(metricsList, evaluationFutureList);
   }
 
+  // TODO It ends to run twice the same experiments but ok it does not throw exception.
   private static String isUnPrunedValueAppropriate(String unPruned, String treeRaising, String confidenceFactor) {
     return treeRaising.isEmpty() && "0.25".equals(confidenceFactor) ? unPruned : "";
   }
 
-  public void performReducedErrorPruningExperiments() {
-    LOGGER.info("Starting J48Experiments performReducedErrorPruningExperiments tests");
+  public void performReducedErrorPruningExperiments(final boolean useConcurrency) {
+    LOGGER.info("Starting J48 Experiments - reduced error pruning  tests");
     final List<J48EvaluationMetrics> metricsList = new ArrayList<>();
     final List<CompletableFuture<Void>> evaluationFutureList = Collections.synchronizedList(new ArrayList<>());
 
@@ -132,11 +138,11 @@ public final class J48Experiments extends AlgorithmExperiments {
                                               final List<CompletableFuture<Void>> evaluationFutureList) {
     final CompletableFuture<Void> completableFuture = CompletableFuture.supplyAsync(
       throwingSupplierWrapper(() -> ClassifierFactory.buildAndEvaluateModel(joiner.toString(), "T")),
-      executor).thenAcceptAsync(evaluationOutput -> {
+      executor).thenAcceptAsync(throwingConsumerWrapper(evaluationOutput -> {
       final var j48EvaluationMetrics = new J48EvaluationMetrics(evaluationOutput);
       metricsList.add(j48EvaluationMetrics);
       System.out.println(j48EvaluationMetrics);
-    });
+    }));
     evaluationFutureList.add(completableFuture);
   }
 

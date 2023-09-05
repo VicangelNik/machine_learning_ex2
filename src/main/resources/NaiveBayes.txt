@@ -1,0 +1,260 @@
+
+=== Classifier model (full training set) ===
+
+Naive Bayes Classifier
+
+                            Class
+Attribute                       e      p
+                           (0.52) (0.48)
+=========================================
+cap-shape
+  b                          405.0   49.0
+  c                            1.0    5.0
+  f                         1597.0 1557.0
+  k                          229.0  601.0
+  s                           33.0    1.0
+  x                         1949.0 1709.0
+  [total]                   4214.0 3922.0
+
+cap-surface
+  f                         1561.0  761.0
+  g                            1.0    5.0
+  s                         1145.0 1413.0
+  y                         1505.0 1741.0
+  [total]                   4212.0 3920.0
+
+cap-color
+  b                           49.0  121.0
+  c                           33.0   13.0
+  e                          625.0  877.0
+  g                         1033.0  809.0
+  n                         1265.0 1021.0
+  p                           57.0   89.0
+  r                           17.0    1.0
+  u                           17.0    1.0
+  w                          721.0  321.0
+  y                          401.0  673.0
+  [total]                   4218.0 3926.0
+
+bruises?
+  f                         1457.0 3293.0
+  t                         2753.0  625.0
+  [total]                   4210.0 3918.0
+
+odor
+  a                          401.0    1.0
+  c                            1.0  193.0
+  f                            1.0 2161.0
+  l                          401.0    1.0
+  m                            1.0   37.0
+  n                         3409.0  121.0
+  p                            1.0  257.0
+  s                            1.0  577.0
+  y                            1.0  577.0
+  [total]                   4217.0 3925.0
+
+gill-attachment
+  a                          193.0   19.0
+  d                            1.0    1.0
+  f                         4017.0 3899.0
+  n                            1.0    1.0
+  [total]                   4212.0 3920.0
+
+gill-spacing
+  c                         3009.0 3805.0
+  d                            1.0    1.0
+  w                         1201.0  113.0
+  [total]                   4211.0 3919.0
+
+gill-size
+  b                         3921.0 1693.0
+  n                          289.0 2225.0
+  [total]                   4210.0 3918.0
+
+gill-color
+  b                            1.0 1729.0
+  e                           97.0    1.0
+  g                          249.0  505.0
+  h                          205.0  529.0
+  k                          345.0   65.0
+  n                          937.0  113.0
+  o                           65.0    1.0
+  p                          853.0  641.0
+  r                            1.0   25.0
+  u                          445.0   49.0
+  w                          957.0  247.0
+  y                           65.0   23.0
+  [total]                   4220.0 3928.0
+
+stalk-shape
+  e                         1617.0 1901.0
+  t                         2593.0 2017.0
+  [total]                   4210.0 3918.0
+
+stalk-root
+  b                         1921.0 1857.0
+  c                          513.0   45.0
+  e                          865.0  257.0
+  r                          193.0    1.0
+  u                            1.0    1.0
+  z                            1.0    1.0
+  [total]                   3494.0 2162.0
+
+stalk-surface-above-ring
+  f                          409.0  145.0
+  k                          145.0 2229.0
+  s                         3641.0 1537.0
+  y                           17.0    9.0
+  [total]                   4212.0 3920.0
+
+stalk-surface-below-ring
+  f                          457.0  145.0
+  k                          145.0 2161.0
+  s                         3401.0 1537.0
+  y                          209.0   77.0
+  [total]                   4212.0 3920.0
+
+stalk-color-above-ring
+  b                            1.0  433.0
+  c                            1.0   37.0
+  e                           97.0    1.0
+  g                          577.0    1.0
+  n                           17.0  433.0
+  o                          193.0    1.0
+  p                          577.0 1297.0
+  w                         2753.0 1713.0
+  y                            1.0    9.0
+  [total]                   4217.0 3925.0
+
+stalk-color-below-ring
+  b                            1.0  433.0
+  c                            1.0   37.0
+  e                           97.0    1.0
+  g                          577.0    1.0
+  n                           65.0  449.0
+  o                          193.0    1.0
+  p                          577.0 1297.0
+  w                         2705.0 1681.0
+  y                            1.0   25.0
+  [total]                   4217.0 3925.0
+
+veil-type
+  p                         4209.0 3917.0
+  u                            1.0    1.0
+  [total]                   4210.0 3918.0
+
+veil-color
+  n                           97.0    1.0
+  o                           97.0    1.0
+  w                         4017.0 3909.0
+  y                            1.0    9.0
+  [total]                   4212.0 3920.0
+
+ring-number
+  n                            1.0   37.0
+  o                         3681.0 3809.0
+  t                          529.0   73.0
+  [total]                   4211.0 3919.0
+
+ring-type
+  c                            1.0    1.0
+  e                         1009.0 1769.0
+  f                           49.0    1.0
+  l                            1.0 1297.0
+  n                            1.0   37.0
+  p                         3153.0  817.0
+  s                            1.0    1.0
+  z                            1.0    1.0
+  [total]                   4216.0 3924.0
+
+spore-print-color
+  b                           49.0    1.0
+  h                           49.0 1585.0
+  k                         1649.0  225.0
+  n                         1745.0  225.0
+  o                           49.0    1.0
+  r                            1.0   73.0
+  u                           49.0    1.0
+  w                          577.0 1813.0
+  y                           49.0    1.0
+  [total]                   4217.0 3925.0
+
+population
+  a                          385.0    1.0
+  c                          289.0   53.0
+  n                          401.0    1.0
+  s                          881.0  369.0
+  v                         1193.0 2849.0
+  y                         1065.0  649.0
+  [total]                   4214.0 3922.0
+
+habitat
+  d                         1881.0 1269.0
+  g                         1409.0  741.0
+  l                          241.0  593.0
+  m                          257.0   37.0
+  p                          137.0 1009.0
+  u                           97.0  273.0
+  w                          193.0    1.0
+  [total]                   4215.0 3923.0
+
+
+
+Time taken to build model: 0.13 seconds
+
+Time taken to test model on training data: 0.08 seconds
+
+=== Error on training data ===
+
+Correctly Classified Instances        7790               95.8887 %
+Incorrectly Classified Instances       334                4.1113 %
+Kappa statistic                          0.9175
+Mean absolute error                      0.0405
+Root mean squared error                  0.1718
+Relative absolute error                  8.1092 %
+Root relative squared error             34.3742 %
+Total Number of Instances             8124     
+
+
+=== Detailed Accuracy By Class ===
+
+                 TP Rate  FP Rate  Precision  Recall   F-Measure  MCC      ROC Area  PRC Area  Class
+                 0.992    0.077    0.933      0.992    0.962      0.920    0.998     0.998     e
+                 0.923    0.008    0.991      0.923    0.956      0.920    0.998     0.998     p
+Weighted Avg.    0.959    0.044    0.961      0.959    0.959      0.920    0.998     0.998     
+
+
+=== Confusion Matrix ===
+
+    a    b   <-- classified as
+ 4176   32 |    a = e
+  302 3614 |    b = p
+
+Time taken to perform cross-validation: 0.14 seconds
+
+
+=== Stratified cross-validation ===
+
+Correctly Classified Instances        7785               95.8272 %
+Incorrectly Classified Instances       339                4.1728 %
+Kappa statistic                          0.9162
+Mean absolute error                      0.0419
+Root mean squared error                  0.1757
+Relative absolute error                  8.397  %
+Root relative squared error             35.1617 %
+Total Number of Instances             8124     
+
+
+=== Detailed Accuracy By Class ===
+
+                 TP Rate  FP Rate  Precision  Recall   F-Measure  MCC      ROC Area  PRC Area  Class
+                 0.992    0.078    0.932      0.992    0.961      0.918    0.998     0.998     e
+                 0.922    0.008    0.991      0.922    0.955      0.918    0.998     0.998     p
+Weighted Avg.    0.958    0.044    0.960      0.958    0.958      0.918    0.998     0.998     
+
+
+=== Confusion Matrix ===
+
+    a    b   <-- classified as
+ 4176   32 |    a = e
+  307 3609 |    b = p

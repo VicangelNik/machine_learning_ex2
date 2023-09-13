@@ -43,7 +43,7 @@ public final class NaiveBayesExperiments extends AlgorithmExperiments {
     try {
       final String evaluationOutput = ClassifierFactory.buildAndEvaluateModel(options, "");
       System.out.println(evaluationOutput);
-      writeToFile(evaluationOutput);
+      writeToFile(evaluationOutput,false);
     } catch (Exception e) {
       System.out.println(e.getMessage() + "\tOptions when error Occurred: " + options);
     }

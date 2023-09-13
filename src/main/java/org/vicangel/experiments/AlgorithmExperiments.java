@@ -48,8 +48,7 @@ public abstract class AlgorithmExperiments implements FileWriteable {
   }
 
   @Override
-  public void writeToFile(final String evaluationOutput) throws IOException {
-    final IFileWriter fileWriter = new FileWriterHandler();
-    fileWriter.writeToFile(evaluationOutput, useCase);
+  public void writeToFile(final String evaluationOutput, final boolean mode) throws IOException {
+    new FileWriterHandler().writeToFile(evaluationOutput, useCase,mode);
   }
 }

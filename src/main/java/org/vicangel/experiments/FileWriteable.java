@@ -12,5 +12,5 @@ public interface FileWriteable {
 
   void writeToFile(List<? extends EvaluationMetrics> metricsList) throws IOException;
 
-  void writeToFile(final String evaluationOutput) throws IOException;
+  void writeToFile(final String evaluationOutput, final boolean mode) throws IOException;
 }

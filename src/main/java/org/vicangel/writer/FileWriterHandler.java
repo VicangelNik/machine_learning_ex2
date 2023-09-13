@@ -40,8 +40,9 @@ public class FileWriterHandler implements IFileWriter {
 
   @Override
   public void writeToFile(final String evaluationOutput,
-                          @Nullable String fileName) throws IOException {
-    try (final FileWriter myWriter = new FileWriter(OUTPUT_FILE_PATH + getFileName(fileName))) {
+                          @Nullable String fileName,
+                          boolean mode) throws IOException {
+    try (final FileWriter myWriter = new FileWriter(OUTPUT_FILE_PATH + getFileName(fileName),mode)) {
       try {
         myWriter.write(evaluationOutput);
         myWriter.flush();

@@ -11,5 +11,5 @@ import org.vicangel.metrics.EvaluationMetrics;
 public interface IFileWriter {
 
   void writeToFile(final List<? extends EvaluationMetrics> metricsList, String fileName) throws IOException;
-  void writeToFile(final String evaluationOutput, String fileName) throws IOException;
+  void writeToFile(final String evaluationOutput, String fileName, boolean mode) throws IOException;
 }

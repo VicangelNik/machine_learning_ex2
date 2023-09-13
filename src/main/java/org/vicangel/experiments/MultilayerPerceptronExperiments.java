@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
@@ -13,6 +14,11 @@ import java.util.logging.Logger;
 import org.vicangel.ClassifierFactory;
 import org.vicangel.metrics.MPEvaluationMetrics;
 import org.vicangel.reader.DataReader;
+
+import weka.classifiers.AbstractClassifier;
+import weka.classifiers.Evaluation;
+import weka.core.Instances;
+import weka.core.Utils;
 
 import static org.vicangel.helpers.ThrowingConsumer.throwingConsumerWrapper;
 import static org.vicangel.helpers.ThrowingSupplier.throwingSupplierWrapper;
@@ -140,5 +146,30 @@ public final class MultilayerPerceptronExperiments extends AlgorithmExperiments 
   @Override
   public String getDefaultWekaOptionsSet() {
     return "-L 0.3 -M 0.2 -N 500 -V 0 -S 0 -E 20 -H a";
+  }
+
+  /**
+   * Perform Experiments for wap.wc.arff.
+   *
+   * @param instances
+   *
+   * @throws Exception
+   */
+  public void performExperimentsForWAP(final Instances instances) throws Exception {
+    String[] options = {"-L 0.3 -M 0.2 -N 500 -V 0 -S 0 -E 20 -H 0",
+      getDefaultWekaOptionsSet(),
+      "-L 0.3 -M 0.2 -N 500 -V 0 -S 0 -E 20 -H o",
+      "-L 0.3 -M 0.2 -N 500 -V 0 -S 0 -E 20 -H 4230, 2115",
+      "-L 0.3 -M 0.2 -N 500 -V 0 -S 0 -E 20 -H 4230, 2115, 1000"};
+
+    for (String option : options) {
+      final AbstractClassifier classifier = ClassifierFactory.getClassifier("M");
+      final var eval = new Evaluation(instances);
+      classifier.setOptions(Utils.splitOptions(option));
+      eval.crossValidateModel(classifier, instances, 10, new Random(1));
+      final String evaluationOutput = eval.toSummaryString("\nResults\n======\n", false);
+      writeToFile(evaluationOutput, true);
+      System.out.println(evaluationOutput);
+    }
   }
 }
